@@ -4,33 +4,25 @@ Task 1: Feed-Forward Neural Networks
 
 ==================
 
-Authors: Dominik K. Klein
+Authors: Dominik K. Klein, Henrik Hembrock, Jonathan Stollberg
          
 08/2022
 """
-
-# %%   
-"""
-Import modules
-
-"""
-
+  
 import tensorflow as tf
 import numpy as np
 from tensorflow.keras import layers
 
-# %%
-"""
-Generate data for a bathtub function
-
-"""
-
+#%% Data generation functions
 
 def bathtub():
+    """
+    Generate data for a bathtub function.
+    """
     xs = np.linspace(1, 10, 450)
     ys = np.concatenate([np.square(xs[0:150] - 4) + 1,
-                         1 + 0.1 * np.sin(np.linspace(0, 3.14, 90)), np.ones(60),
-                         np.square(xs[300:450] - 7) + 1])
+                         1 + 0.1 * np.sin(np.linspace(0, 3.14, 90)), 
+                         np.ones(60), np.square(xs[300:450] - 7) + 1])
 
     xs = xs / 10.0
     ys = ys / 10.0
@@ -46,36 +38,65 @@ def bathtub():
 
     return xs, ys, xs_c, ys_c
 
-
-def F1_data():
+def f1_data():
+    """
+    Generate data for `f1 = x**2 + y**2`.
+    """
     xs = np.linspace(-4, 4, 20)
     ys = np.linspace(-4, 4, 20)
+    xs, ys = np.meshgrid(xs, ys)
+    
+    # Cut out the 4x4 grid in the the middle for calibration data
+    cut = np.concatenate([range(0,8), range(12,20)])
+    cut = np.ix_(cut, cut)
+    xs_c = xs[cut]
+    ys_c = ys[cut]
 
-    zs = np.zeros((20, 20))
-    mesh = np.zeros((20, 20, 2))
-    for i, x in enumerate(xs):
-        for j, y in enumerate(ys):
-            mesh[i, j, :] = [x, y]
-            zs[i, j] = generate_data_f1(x, y)
+    xs = xs.reshape((-1,1))
+    ys = ys.reshape((-1,1))
+    zs = F1()(xs, ys)
+    
+    xs_c = xs_c.reshape((-1,1))
+    ys_c = ys_c.reshape((-1,1))
+    zs_c = F2()(xs_c, ys_c)
+    
+    return xs, ys, zs, xs_c, ys_c, zs_c
 
-    #mesh = tf.expand_dims(mesh, axis=1)
-    #zs = tf.expand_dims(zs, axis=1)
-    return mesh, zs, xs, ys
+def f2_data():
+    """
+    Generate data for `f2 = x**2 + 0.5*y**2`.
+    """
+    xs = np.linspace(-4, 4, 20)
+    ys = np.linspace(-4, 4, 20)
+    xs, ys = np.meshgrid(xs, ys)
+    
+    # Cut out the 4x4 grid in the middle for calibration data
+    cut = np.concatenate([range(0,8), range(12,20)])
+    cut = np.ix_(cut, cut)
+    xs_c = xs[cut]
+    ys_c = ys[cut]
+    
+    xs = xs.reshape((-1,1))
+    ys = ys.reshape((-1,1))
+    zs = F2()(xs, ys)
+    
+    xs_c = xs_c.reshape((-1,1))
+    ys_c = ys_c.reshape((-1,1))
+    zs_c = F2()(xs_c, ys_c)
+    
+    return xs, ys, zs, xs_c, ys_c, zs_c
 
-
+#%% Non-trainable layers
 class F1(layers.Layer):
+    """
+    Non-trainable layer `f1 = x**2 + y**2`.
+    """
     def __call__(self, x, y):
         return x ** 2 + y ** 2
 
-
 class F2(layers.Layer):
+    """
+    Non-trainable layer `f2 = x**2 + 0.5*y**2`.
+    """
     def __call__(self, x, y):
-        return x ** 2 - 0.5 + y ** 2
-
-
-def generate_data_f1(x, y):
-    return F1()(x, y)
-
-
-def generate_data_f2(x, y):
-    return F2()(x, y)
+        return x ** 2 + 0.5 + y ** 2

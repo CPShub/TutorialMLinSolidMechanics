@@ -4,79 +4,81 @@ Task 1: Feed-Forward Neural Networks
 
 ==================
 
-Authors: Dominik K. Klein
+Authors: Dominik K. Klein, Henrik Hembrock, Jonathan Stollberg
          
 08/2022
 """
+
 import numpy as np
-
-# %%
-"""
-Import modules
-
-"""
-from matplotlib import pyplot as plt
 import tensorflow as tf
 import datetime
-from mpl_toolkits import mplot3d
+import data as ld
+import models as lm
+from matplotlib import pyplot as plt
+from matplotlib import cm
 now = datetime.datetime.now
 
-# %% Own modules
-import data as ld
-from TUT.src import models as lm
+# Set this to avoid conflicts with matplotlib
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
-# %%
-"""
-Load model
+#%% Load model and data
 
-"""
-mod_type = 'second'
+# Options: 1d_convex, 2d_convex, 2d_nonconvex
+model_type = "2d_convex"
 
-if mod_type == 'standard':
+if model_type == "1d_convex":
     model = lm.main()
-elif mod_type == 'second':
-    model = lm.main_2()
+    
+elif model_type == "2d_convex":
+    model = lm.main_2d_convex()
+    
+elif model_type == "2d_nonconvex":
+    model = lm.main_2d_nonconvex()
+    
+else:
+    raise NotImplementedError(f"Model {model_type} does not exist.")
+    
+#%% Load data
 
+# Options: bathtub, f1, f2
+data = "f1"
 
-# %%   
-"""
-Load data
-
-"""
-data_type = 'second'
-
-if data_type == 'standard':
+if data == "bathtub":
     xs, ys, xs_c, ys_c = ld.bathtub()
-elif data_type == 'second':
-    mesh, zs, xs, ys = ld.F1_data()
+    model_input = xs_c
+    model_output = ys_c
+    
+elif data == "f1":
+    xs, ys, zs, xs_c, ys_c, zs_c = ld.f1_data()
+    model_input = np.hstack((xs_c, ys_c))
+    model_output = zs_c
+    
+elif data == "f2":
+    xs, ys, zs, xs_c, ys_c, zs_c = ld.f2_data()
+    model_input = np.hstack((xs_c, ys_c))
+    model_output = zs_c
+    
+else:
+    raise NotImplementedError(f"Data function {data} does not exist.")
 
-# %%   
-"""
-Model calibration
-
-"""
+#%% Model calibration
 
 t1 = now()
-print(t1)
-
 tf.keras.backend.set_value(model.optimizer.learning_rate, 0.002)
-h = model.fit([mesh], [zs], epochs=1500,  verbose=2)
+h = model.fit([model_input], [model_output], epochs=1500, verbose=2)
+print(f"It took {now() - t1} sec to calibrate the model.")
 
-t2 = now()
-print('it took', t2 - t1, '(sec) to calibrate the model')
+#%% Result plots
 
-ploten = False
-
-# plot some results
-
-if ploten:
+if model_type == "1d_convex" and data == "bathtub":
     plt.figure(1, dpi=600)
     plt.semilogy(h.history['loss'], label='training loss')
     plt.grid(which='both')
     plt.xlabel('calibration epoch')
     plt.ylabel('log$_{10}$ MSE')
     plt.legend()
-    plt.savefig('losses_3L4_5000_nn.pdf')
+    #plt.savefig('losses_3L4_5000_nn.pdf')
 
     plt.figure(2, dpi=600)
     plt.scatter(xs_c[::10], ys_c[::10], c='green', label='calibration data')
@@ -85,37 +87,38 @@ if ploten:
     plt.xlabel('x')
     plt.ylabel('y')
     plt.legend()
-    plt.savefig('calidata_3L4_5000_nn.pdf')
+    #plt.savefig('calidata_3L4_5000_nn.pdf')
     plt.show()
 
-X, Y = np.meshgrid(xs, ys)
-zssa = model.predict(mesh).reshape((20, 20))
-plt.figure(3, dpi=600)
-ax = plt.axes(projection='3d')
-ax.plot_surface(X, Y, zssa, label='model', color='blue')
-plt.xlabel('x')
-plt.ylabel('y')
-plt.show()
-
-zzzs = model.predict(mesh)
-mesha, zsa, xsa, ysa = ld.F1_data()
-
-print(zzzs[10, 10])
-print(zsa[10, 10])
-print(zzzs.shape)
-print(zsa.shape)
-zzzs = zzzs.reshape((20, 20))
-print(zzzs.shape)
-
-# %%   
-"""
-Evaluation
-
-"""
-
-
-
-
-
-
-
+elif model_type == "2d_convex" or model_type == "2d_nonconvex":
+    
+    # Loss
+    plt.figure(1, dpi=600)
+    plt.semilogy(h.history['loss'], label='training loss')
+    plt.grid(which='both')
+    plt.xlabel('calibration epoch')
+    plt.ylabel('log$_{10}$ MSE')
+    plt.legend()
+    
+    # Interpolated data
+    zs_model = model.predict(np.hstack((xs, ys)))
+    X = xs.reshape((20,20))
+    Y = ys.reshape((20,20))
+    Z_MODEL = zs_model.reshape((20,20))
+    plt.figure(2, dpi=600)
+    ax2 = plt.axes(projection="3d")
+    ax2.plot_surface(X, Y, Z_MODEL, cmap=cm.coolwarm, linewidth=0.25, 
+                     edgecolors="black", label="model")
+    plt.xlabel('x')
+    plt.ylabel('y')
+    
+    # Reference data
+    Z = zs.reshape((20,20))
+    plt.figure(3, dpi=600)
+    ax3 = plt.axes(projection="3d")
+    ax3.plot_surface(X, Y, Z, cmap=cm.coolwarm, linewidth=0.25, 
+                     edgecolors="black", label="data")
+    plt.xlabel('x')
+    plt.ylabel('y')
+    
+    plt.show()
