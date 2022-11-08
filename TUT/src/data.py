@@ -13,9 +13,9 @@ import tensorflow as tf
 import numpy as np
 from tensorflow.keras import layers
 
-#%% Data generation functions
+#%% data generation functions
 
-def bathtub():
+def bathtub_data():
     """
     Generate data for a bathtub function.
     """
@@ -86,17 +86,18 @@ def f2_data():
     
     return xs, ys, zs, grad, xs_c, ys_c, zs_c, grad_c
 
-#%% Non-trainable layers
+#%% non-trainable layers
+
 class F1(layers.Layer):
     """
     Non-trainable layer `f1 = x**2 + y**2`.
     """
     def __call__(self, x, y):
-        return x ** 2 + y ** 2
+        return x**2 + y**2
 
 class F2(layers.Layer):
     """
     Non-trainable layer `f2 = x**2 + 0.5*y**2`.
     """
     def __call__(self, x, y):
-        return x ** 2 + 0.5 + y ** 2, np.hstack([2*x, y])
+        return x**2 + 0.5 + y**2, np.hstack([2*x, y])
