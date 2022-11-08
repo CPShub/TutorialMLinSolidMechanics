@@ -11,38 +11,28 @@ Authors: Dominik K. Klein, Henrik Hembrock, Jonathan Stollberg
 
 import numpy as np
 import tensorflow as tf
-import datetime
-import data as ld
-import models as lm
+from tensorflow.keras.constraints import non_neg
 from matplotlib import pyplot as plt
 from matplotlib import cm
+import datetime
+
+import data as ld
+import models as lm
+
 now = datetime.datetime.now
 
-# Set this to avoid conflicts with matplotlib
+# set this to avoid conflicts with matplotlib
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
-#%% Load model and data
+#%% load model and data
 
-# Options: 1d_convex, 2d_convex, 2d_nonconvex
-model_type = "2d_convex"
+data = "f2"  # options: bathtub, f1, f2
+input_shape = [2]
+kwargs = {"nlayers": 3, "units": 8, "activation": "softplus", 
+          "constraint": non_neg()}
 
-if model_type == "1d_convex":
-    model = lm.main()
-    
-elif model_type == "2d_convex":
-    model = lm.main_2d_convex()
-    
-elif model_type == "2d_nonconvex":
-    model = lm.main_2d_nonconvex()
-    
-else:
-    raise NotImplementedError(f"Model {model_type} does not exist.")
-    
-#%% Load data
-
-# Options: bathtub, f1, f2
-data = "f1"
+model = lm.main(input_shape, **kwargs)
 
 if data == "bathtub":
     xs, ys, xs_c, ys_c = ld.bathtub()
@@ -55,14 +45,17 @@ elif data == "f1":
     model_output = zs_c
     
 elif data == "f2":
-    xs, ys, zs, xs_c, ys_c, zs_c = ld.f2_data()
+    xs, ys, zs, grad, xs_c, ys_c, zs_c, grad_c = ld.f2_data()
     model_input = np.hstack((xs_c, ys_c))
     model_output = zs_c
     
 else:
     raise NotImplementedError(f"Data function {data} does not exist.")
 
-#%% Model calibration
+#%% model calibration
+
+model_input = tf.convert_to_tensor(model_input)
+model_output = tf.convert_to_tensor(model_output)
 
 t1 = now()
 tf.keras.backend.set_value(model.optimizer.learning_rate, 0.002)
@@ -71,7 +64,7 @@ print(f"It took {now() - t1} sec to calibrate the model.")
 
 #%% Result plots
 
-if model_type == "1d_convex" and data == "bathtub":
+if input_shape == [1] and data == "bathtub":
     plt.figure(1, dpi=600)
     plt.semilogy(h.history['loss'], label='training loss')
     plt.grid(which='both')
@@ -90,7 +83,7 @@ if model_type == "1d_convex" and data == "bathtub":
     #plt.savefig('calidata_3L4_5000_nn.pdf')
     plt.show()
 
-elif model_type == "2d_convex" or model_type == "2d_nonconvex":
+elif input_shape == [2]:
     
     # Loss
     plt.figure(1, dpi=600)
@@ -99,6 +92,7 @@ elif model_type == "2d_convex" or model_type == "2d_nonconvex":
     plt.xlabel('calibration epoch')
     plt.ylabel('log$_{10}$ MSE')
     plt.legend()
+    plt.savefig("loss_convex.pdf")
     
     # Interpolated data
     zs_model = model.predict(np.hstack((xs, ys)))
@@ -111,6 +105,7 @@ elif model_type == "2d_convex" or model_type == "2d_nonconvex":
                      edgecolors="black", label="model")
     plt.xlabel('x')
     plt.ylabel('y')
+    plt.savefig("model_convex.pdf")
     
     # Reference data
     Z = zs.reshape((20,20))
@@ -120,5 +115,6 @@ elif model_type == "2d_convex" or model_type == "2d_nonconvex":
                      edgecolors="black", label="data")
     plt.xlabel('x')
     plt.ylabel('y')
+    plt.savefig("training_data_convex.pdf")
     
     plt.show()

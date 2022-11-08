@@ -58,7 +58,7 @@ def f1_data():
     
     xs_c = xs_c.reshape((-1,1))
     ys_c = ys_c.reshape((-1,1))
-    zs_c = F2()(xs_c, ys_c)
+    zs_c = F1()(xs_c, ys_c)
     
     return xs, ys, zs, xs_c, ys_c, zs_c
 
@@ -78,13 +78,13 @@ def f2_data():
     
     xs = xs.reshape((-1,1))
     ys = ys.reshape((-1,1))
-    zs = F2()(xs, ys)
+    (zs, grad) = F2()(xs, ys)
     
     xs_c = xs_c.reshape((-1,1))
     ys_c = ys_c.reshape((-1,1))
-    zs_c = F2()(xs_c, ys_c)
+    (zs_c, grad_c) = F2()(xs_c, ys_c)
     
-    return xs, ys, zs, xs_c, ys_c, zs_c
+    return xs, ys, zs, grad, xs_c, ys_c, zs_c, grad_c
 
 #%% Non-trainable layers
 class F1(layers.Layer):
@@ -99,4 +99,4 @@ class F2(layers.Layer):
     Non-trainable layer `f2 = x**2 + 0.5*y**2`.
     """
     def __call__(self, x, y):
-        return x ** 2 + 0.5 + y ** 2
+        return x ** 2 + 0.5 + y ** 2, np.hstack([2*x, y])
