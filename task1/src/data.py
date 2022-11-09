@@ -93,7 +93,7 @@ class F1(layers.Layer):
     Non-trainable layer `f1 = x**2 + y**2`.
     """
     def __call__(self, x, y):
-        return x**2 + y**2
+        return x**2 - y**2
 
 class F2(layers.Layer):
     """
