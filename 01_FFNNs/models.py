@@ -36,7 +36,7 @@ class _x_to_y(layers.Layer):
         # scalar-valued output function
         self.ls += [layers.Dense(1)]
             
-    def __call__(self, x):     
+    def call(self, x):     
         
         for l in self.ls:
             x = l(x)
