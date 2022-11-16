@@ -7,19 +7,18 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 
 loc = "./../data/calibration/"
-loc = "./task2/data/calibration/"
+# loc = "./task2/data/calibration/"
 loc_biaxial = loc + "biaxial.txt"
 loc_shear = loc + "pure_shear.txt"
 loc_uniax = loc + "uniaxial.txt"
 
 def load_data(loc):
     data = np.loadtxt(loc)
-    print("Shape of data:")
-    print(data.shape)
+    # print("Shape of data:")
+    # print(data.shape)
 
     #get data count
     N = data.shape[0]
-
 
     #create empy arrays
     defgrad = np.zeros((3, 3, N))
@@ -82,50 +81,42 @@ def piola_kirchhoff(F):
     
     return P
 
-
 def plot_load_path(F, P):
     # plot stress and strain in normal direction
-    F11, F22, F33 = F[0,0,:], F[4,4,:], F[8,8,:]
-    P11, P22, P33 = P[0,0,:], P[4,4,:], P[8,8,:]
+    F11, F22, F33 = F[0,0,:], F[1,1,:], F[2,2,:]
+    P11, P22, P33 = P[0,0,:], P[1,1,:], P[2,2,:]
     
-    normal_deformation = np.array([F11, F22, F33])
-    normal_stress = np.array([P11, P22, P33])
-    
-    fig1, ax1 = plt.subplots()
-    for f, p in zip(normal_deformation, normal_stress):
-        ax1.plot(f[0], p[0])
-        ax1.plot(f[1], p[1])
-        ax1.plot(f[2], p[2])
-        
-        ax1.set(xlabel="deformation gradient",
-               ylabel="first Piola-Kirchhoff stress")
-        ax1.grid()
-        
+    fig1, ax1 = plt.subplots(dpi=600)
+    ax1.plot(F11, P11, label="11")
+    ax1.plot(F22, P22, label="22")
+    ax1.plot(F33, P33, label="33")
+    ax1.set(xlabel="deformation gradient",
+            ylabel="first Piola-Kirchhoff stress")
+    ax1.legend()
+    ax1.grid()
+
     # plot stress and strain in shear direction
-    F12, F13, F21, F23, F31, F32 = (F[1,1,:], F[2,2,:], F[3,3,:], F[5,5,:],
-                                    F[6,6,:], F[7,7,:])
-    P12, P13, P21, P23, P31, P32 = (P[1,1,:], P[2,2,:], P[3,3,:], P[5,5,:],
-                                    P[6,6,:], P[7,7,:])
+    F12, F13, F21, F23, F31, F32 = (F[0,1,:], F[0,2,:], F[1,0,:], F[1,2,:],
+                                    F[2,0,:], F[2,1,:])
+    P12, P13, P21, P23, P31, P32 = (P[0,1,:], P[0,2,:], P[1,0,:], P[1,2,:],
+                                    P[2,0,:], P[2,1,:])
     
-    shear_deformation = np.array([F12, F13, F21, F23, F31, F32])
-    shear_stress = np.array([P12, P13, P21, P23, P31, P32])
+    fig2, ax2 = plt.subplots(dpi=600)
+    ax2.plot(F12, P12, label="12")
+    ax2.plot(F13, P13, label="13")
+    ax2.plot(F21, P21, label="21")
+    ax2.plot(F23, P23, label="23")
+    ax2.plot(F31, P31, label="31")
+    ax2.plot(F32, P32, label="32")
+    ax2.set(xlabel="deformation gradient",
+            ylabel="first Piola-Kirchhoff stress")
+    ax2.legend()
+    ax2.grid()
     
-    fig2, ax2 = plt.subplots()
-    for f, p in zip(shear_deformation, shear_stress):
-        ax2.plot(f[0], p[0])
-        ax2.plot(f[1], p[1])
-        ax2.plot(f[2], p[2])
-        ax2.plot(f[3], p[3])
-        ax2.plot(f[4], p[4])
-        ax2.plot(f[5], p[5])
-        
-        ax2.set(xlabel="deformation gradient",
-               ylabel="first Piola-Kirchhoff stress")
-        ax2.grid()
-        
-    plt.show()
+    plt.show
     
 if __name__ == "__main__":
     
-    defgrad, pkstress, energy = load_data(loc_biaxial)
-    print(defgrad[:, :, 0])
+    F, P, W = load_data(loc_shear)
+    
+    plot_load_path(F, P)
