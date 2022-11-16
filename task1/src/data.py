@@ -90,7 +90,7 @@ def f2_data():
 
 class F1(layers.Layer):
     """
-    Non-trainable layer `f1 = x**2 + y**2`.
+    Non-trainable layer `f1 = x**2 - y**2`.
     """
     def __call__(self, x, y):
         return x**2 - y**2
