@@ -26,7 +26,7 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
 #%% load data
 
-data = "f2"  # options: bathtub, f1, f2
+data = "f1"  # options: bathtub, f1, f2
 
 if data == "bathtub":
     xs, ys, xs_c, ys_c = bathtub_data()
@@ -51,10 +51,10 @@ else:
 # loss_weights = [0, 1]  # only gradient: [0,1], only output: [1,0]
 loss_weights = None
 kwargs = {"nlayers": 3, "units": 8, "activation": "softplus", 
-          "constraint": non_neg()}
+          "constraint": None}
 
-# model = StdNeuralNetwork(**kwargs)
-model = GradNeuralNetwork(**kwargs)
+model = StdNeuralNetwork(**kwargs)
+# model = GradNeuralNetwork(**kwargs)
 model.compile("adam", "mse", loss_weights=loss_weights)
 
 #%% model calibration
