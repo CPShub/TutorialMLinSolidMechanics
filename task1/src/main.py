@@ -10,6 +10,11 @@ Authors: Dominik K. Klein, Henrik Hembrock, Jonathan Stollberg
 """
 
 import numpy as np
+import os
+
+# removes no gpu message
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
 import tensorflow as tf
 from tensorflow.keras.constraints import non_neg
 import datetime
@@ -21,12 +26,11 @@ from plots import plot_bathtub, plot_f1, plot_f2
 now = datetime.datetime.now
 
 # set this to avoid conflicts with matplotlib
-import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
 #%% load data
-
-data = "f1"  # options: bathtub, f1, f2
+data = "f2"  # options: bathtub, f1, f2
+plotten = False
 
 if data == "bathtub":
     xs, ys, xs_c, ys_c = bathtub_data()
@@ -59,7 +63,7 @@ model.compile("adam", "mse", loss_weights=loss_weights)
 
 #%% model calibration
 
-epochs = 1500
+epochs = 100
 
 t1 = now()
 tf.keras.backend.set_value(model.optimizer.learning_rate, 0.002)
@@ -70,12 +74,13 @@ print(f"It took {now() - t1} sec to calibrate the model.")
 
 save = False
 
-if data == "bathtub":
-    plot_bathtub(model, h, save=save)
+if plotten:
+    if data == "bathtub":
+        plot_bathtub(model, h, save=save)
 
-elif data == "f1":
-    plot_f1(model, h, save=save)    
-    
-elif data == "f2":
-    plot_f2(model, h, save=save)
+    elif data == "f1":
+        plot_f1(model, h, save=save)    
+        
+    elif data == "f2":
+        plot_f2(model, h, save=save)
 
