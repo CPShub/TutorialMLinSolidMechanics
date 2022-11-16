@@ -6,8 +6,10 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
-loc = "./../data/calibration/"
-# loc = "./task2/data/calibration/"
+from utils import get_equivalent, get_deviator
+
+#loc = "./../data/calibration/"
+loc = "./task2/data/calibration/"
 loc_biaxial = loc + "biaxial.txt"
 loc_shear = loc + "pure_shear.txt"
 loc_uniax = loc + "uniaxial.txt"
@@ -119,4 +121,6 @@ if __name__ == "__main__":
     
     F, P, W = load_data(loc_shear)
     
-    plot_load_path(F, P)
+    eq = get_equivalent(P, "stress")
+    print(eq[10])
+    #plot_load_path(F, P)
