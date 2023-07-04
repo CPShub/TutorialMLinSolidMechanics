@@ -14,8 +14,8 @@ Research group website: [link](https://www.maschinenbau.tu-darmstadt.de/cps/depa
 
 This repository offers a collection of lecture material and minimum working code examples based on the tutorial "Machine Learning in Solid Mechanics" by Prof. Dr. rer. nat Oliver Weeger. 
 For online interaction with the models, please open the repository through
-[Binder](https://mybinder.org/v2/gh/CPShub/TutorialMLinSolidMechanics/HEAD)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/CPShub/TutorialMLinSolidMechanics/HEAD) .
+[Binder](https://mybinder.org/v2/gh/CPShub/TutorialMLinSolidMechanics/master)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/CPShub/TutorialMLinSolidMechanics/master) .
 
 ## Lecture material
 
