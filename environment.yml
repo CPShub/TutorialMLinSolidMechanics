@@ -6,3 +6,4 @@ dependencies:
   - matplotlib
   - scipy
   - h5py
+  - tensorflow
