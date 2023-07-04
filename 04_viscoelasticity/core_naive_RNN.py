@@ -40,11 +40,18 @@ class RNNCell(tf.keras.layers.Layer):
         eps_n = inputs[0]
         hs = inputs[1]
         
+        #   gamma: history variable
+        
         gamma_N = states[0]
         
+        #   x contains the current strain, the current time step size, and the 
+        #   history variable from the previous time step
         
         x = tf.concat([eps_n, hs, gamma_N], axis = 1)
                 
+        #   x gets passed to a FFNN which yields the current stress and history
+        #   variable
+        
         for l in self.ls:
             x = l(x)
          
@@ -56,16 +63,20 @@ class RNNCell(tf.keras.layers.Layer):
     
     def get_initial_state(self, inputs=None, batch_size=None, dtype=None):
         
-        # define initial values of the internal variables
+        #   define initial values of the internal variables
                 
         return [tf.zeros([batch_size, 1])]
 
 
 def main(**kwargs):
     
+    # define inputs
+    
     eps = tf.keras.Input(shape=[None, 1],name='input_eps')
     hs = tf.keras.Input(shape=[None, 1], name='input_hs')
         
+    # define RNN cell
+    
     cell = RNNCell()
     layer1 = layers.RNN(cell, return_sequences=True, return_state=False)
     sigs = layer1((eps, hs))
