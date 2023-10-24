@@ -19,7 +19,6 @@ For online interaction with the models, please open the repository through
 
 ## Lecture material
 
-* Task 1: Feed-Forward Neural Networks
-* Task 2: Hyperelasticity I
-* Task 3: Hyperelasticity II
-* Task 4: Viscoelasticity
+* Task 1: Feed-forward neural networks
+* Task 2: Hyperelasticity 
+* Task 3: Viscoelasticity
