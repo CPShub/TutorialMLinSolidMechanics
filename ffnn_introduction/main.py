@@ -8,9 +8,9 @@ import klax
 from matplotlib import pyplot as plt
 import time
 
-import tmlsm.losses as tl
-import tmlsm.data as td
-import tmlsm.models as tm
+import src.tmlsm.losses as tl
+import src.tmlsm.data as td
+import src.tmlsm.models as tm
 
 now = datetime.datetime.now
 
