@@ -2,7 +2,7 @@
 
 Lecturer: Prof. Dr. rer. nat. Oliver Weeger
 
-Authors: Dominik K. Klein, M.Sc.; Jasper O. Schommartz, M.Sc.
+Authors: Dr. Ing. Dominik K. Klein; Jasper O. Schommartz, M.Sc.
 
 
 
@@ -17,8 +17,6 @@ This repository offers a collection of lecture material and minimum working code
 ## Lecture material
 
 * Task 1: Feed-forward neural networks
-* Task 2: Hyperelasticity
-* Task 3: Viscoelasticity
 
 ## Additional materials
 
